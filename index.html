@@ -1,0 +1,947 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>安盾云 · 产业安全综合管理平台</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<style>
+  :root {
+    --primary: #1a56db;
+    --primary-dark: #1240a8;
+    --primary-light: #ebf1ff;
+    --accent: #0ea5e9;
+    --danger: #ef4444;
+    --warning: #f59e0b;
+    --success: #10b981;
+    --gray-50: #f8fafc;
+    --gray-100: #f1f5f9;
+    --gray-200: #e2e8f0;
+    --gray-400: #94a3b8;
+    --gray-600: #475569;
+    --gray-800: #1e293b;
+    --gray-900: #0f172a;
+    --shadow-sm: 0 1px 3px rgba(0,0,0,.08);
+    --shadow: 0 4px 16px rgba(0,0,0,.1);
+    --shadow-lg: 0 12px 40px rgba(0,0,0,.15);
+    --radius: 12px;
+    --radius-lg: 20px;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  body { font-family: -apple-system, "PingFang SC", "Microsoft YaHei", "Apple SD Gothic Neo", sans-serif; color: var(--gray-800); background: var(--gray-50); line-height: 1.6; }
+
+  /* NAV */
+  nav {
+    position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+    background: rgba(255,255,255,.92); backdrop-filter: blur(12px);
+    border-bottom: 1px solid var(--gray-200);
+    padding: 0 5%;
+    display: flex; align-items: center; justify-content: space-between;
+    height: 64px;
+  }
+  .nav-logo { display: flex; align-items: center; gap: 10px; text-decoration: none; }
+  .nav-logo-icon { width: 36px; height: 36px; border-radius: 8px; background: linear-gradient(135deg, var(--primary), var(--accent)); display: flex; align-items: center; justify-content: center; font-size: 18px; }
+  .nav-logo-text { font-size: 18px; font-weight: 700; color: var(--gray-900); }
+  .nav-logo-text span { color: var(--primary); }
+  .nav-right { display: flex; align-items: center; gap: 10px; }
+  .nav-links { display: flex; align-items: center; gap: 4px; }
+  .nav-links a { text-decoration: none; color: var(--gray-600); font-size: 14px; font-weight: 500; padding: 6px 12px; border-radius: 8px; transition: all .2s; }
+  .nav-links a:hover { color: var(--primary); background: var(--primary-light); }
+  .nav-links a.active { color: var(--primary); background: var(--primary-light); }
+
+  /* LANG SWITCHER */
+  .lang-switcher { display: flex; align-items: center; background: var(--gray-100); border-radius: 10px; padding: 3px; gap: 2px; }
+  .lang-btn { border: none; background: transparent; color: var(--gray-600); font-size: 12px; font-weight: 700; padding: 5px 10px; border-radius: 7px; cursor: pointer; transition: all .2s; white-space: nowrap; }
+  .lang-btn.active { background: #fff; color: var(--primary); box-shadow: var(--shadow-sm); }
+  .lang-btn:hover:not(.active) { color: var(--gray-800); }
+
+  .nav-btn { background: var(--primary); color: #fff; border: none; border-radius: 8px; padding: 8px 18px; font-size: 14px; font-weight: 600; cursor: pointer; transition: all .2s; white-space: nowrap; }
+  .nav-btn:hover { background: var(--primary-dark); transform: translateY(-1px); }
+
+  /* HERO */
+  .hero { margin-top: 64px; padding: 80px 5% 60px; background: linear-gradient(135deg, #0f172a 0%, #1e3a8a 50%, #1a56db 100%); position: relative; overflow: hidden; }
+  .hero::before { content: ''; position: absolute; inset: 0; background: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.03'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E"); }
+  .hero-inner { max-width: 1200px; margin: 0 auto; display: flex; align-items: center; gap: 60px; }
+  .hero-text { flex: 1; color: #fff; }
+  .hero-badge { display: inline-flex; align-items: center; gap: 6px; background: rgba(255,255,255,.12); border: 1px solid rgba(255,255,255,.2); color: #93c5fd; font-size: 12px; font-weight: 600; padding: 4px 12px; border-radius: 20px; margin-bottom: 20px; letter-spacing: .5px; }
+  .hero-badge::before { content: '●'; color: #4ade80; font-size: 8px; }
+  .hero h1 { font-size: clamp(28px, 4vw, 48px); font-weight: 800; line-height: 1.2; margin-bottom: 16px; }
+  .hero h1 em { color: #60a5fa; font-style: normal; }
+  .hero p { font-size: 16px; color: rgba(255,255,255,.75); max-width: 480px; margin-bottom: 32px; }
+  .hero-actions { display: flex; gap: 12px; flex-wrap: wrap; }
+  .btn-primary { background: #fff; color: var(--primary); font-weight: 700; padding: 12px 28px; border-radius: 10px; border: none; cursor: pointer; font-size: 15px; transition: all .2s; text-decoration: none; display: inline-block; }
+  .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 8px 24px rgba(0,0,0,.2); }
+  .btn-outline { background: transparent; color: #fff; font-weight: 600; padding: 12px 28px; border-radius: 10px; border: 1px solid rgba(255,255,255,.4); cursor: pointer; font-size: 15px; transition: all .2s; text-decoration: none; display: inline-block; }
+  .btn-outline:hover { background: rgba(255,255,255,.1); }
+  .hero-stats { display: flex; gap: 40px; margin-top: 48px; padding-top: 32px; border-top: 1px solid rgba(255,255,255,.12); flex-wrap: wrap; }
+  .hero-stat .val { display: block; font-size: 28px; font-weight: 800; color: #fff; }
+  .hero-stat .lbl { display: block; font-size: 12px; color: rgba(255,255,255,.6); margin-top: 2px; }
+  .hero-visual { flex: 0 0 380px; }
+  .alert-card { background: rgba(255,255,255,.08); border: 1px solid rgba(255,255,255,.12); border-radius: var(--radius-lg); padding: 24px; backdrop-filter: blur(8px); }
+  .alert-card-title { color: rgba(255,255,255,.8); font-size: 12px; font-weight: 600; letter-spacing: 1px; margin-bottom: 16px; }
+  .alert-item { display: flex; align-items: center; gap: 12px; padding: 12px; border-radius: 10px; margin-bottom: 8px; background: rgba(255,255,255,.05); border: 1px solid rgba(255,255,255,.07); }
+  .alert-dot { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
+  .alert-dot.red { background: #ef4444; box-shadow: 0 0 0 3px rgba(239,68,68,.3); animation: pulse 2s infinite; }
+  .alert-dot.yellow { background: #f59e0b; box-shadow: 0 0 0 3px rgba(245,158,11,.3); }
+  .alert-dot.green { background: #10b981; box-shadow: 0 0 0 3px rgba(16,185,129,.3); }
+  @keyframes pulse { 0%,100%{opacity:1}50%{opacity:.5} }
+  .alert-info { flex: 1; }
+  .alert-info .title { font-size: 13px; color: #fff; font-weight: 500; }
+  .alert-info .sub { font-size: 11px; color: rgba(255,255,255,.5); margin-top: 2px; }
+  .alert-time { font-size: 11px; color: rgba(255,255,255,.4); }
+
+  /* AUTHOR BANNER */
+  .author-banner {
+    background: linear-gradient(90deg, var(--primary-light), #e0f2fe);
+    border-bottom: 1px solid var(--gray-200);
+    padding: 10px 5%;
+    display: flex; align-items: center; justify-content: center; gap: 16px; flex-wrap: wrap;
+  }
+  .author-banner .author-label { font-size: 12px; color: var(--gray-600); font-weight: 500; }
+  .author-badge {
+    display: inline-flex; align-items: center; gap: 8px;
+    background: #fff; border: 1px solid var(--primary-light);
+    border-radius: 30px; padding: 5px 16px;
+    box-shadow: var(--shadow-sm);
+  }
+  .author-badge .id { font-size: 12px; color: var(--gray-400); font-weight: 600; letter-spacing: .5px; }
+  .author-badge .name { font-size: 14px; color: var(--primary); font-weight: 800; }
+  .author-badge .sep { color: var(--gray-200); }
+
+  /* SECTION */
+  section { padding: 72px 5%; }
+  .section-inner { max-width: 1200px; margin: 0 auto; }
+  .section-header { text-align: center; margin-bottom: 48px; }
+  .section-tag { display: inline-block; background: var(--primary-light); color: var(--primary); font-size: 12px; font-weight: 700; padding: 4px 12px; border-radius: 20px; letter-spacing: .5px; margin-bottom: 12px; }
+  .section-header h2 { font-size: clamp(22px, 3vw, 32px); font-weight: 800; color: var(--gray-900); margin-bottom: 12px; }
+  .section-header p { color: var(--gray-600); font-size: 15px; max-width: 560px; margin: 0 auto; }
+
+  /* FEATURES */
+  .features-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 24px; }
+  .feature-card { background: #fff; border-radius: var(--radius-lg); padding: 28px; border: 1px solid var(--gray-200); transition: all .3s; position: relative; overflow: hidden; }
+  .feature-card::after { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px; background: linear-gradient(90deg, var(--primary), var(--accent)); transform: scaleX(0); transition: transform .3s; transform-origin: left; }
+  .feature-card:hover { transform: translateY(-4px); box-shadow: var(--shadow-lg); border-color: transparent; }
+  .feature-card:hover::after { transform: scaleX(1); }
+  .feature-icon { width: 52px; height: 52px; border-radius: 14px; display: flex; align-items: center; justify-content: center; font-size: 24px; margin-bottom: 18px; }
+  .feature-card h3 { font-size: 17px; font-weight: 700; color: var(--gray-900); margin-bottom: 8px; }
+  .feature-card p { font-size: 14px; color: var(--gray-600); line-height: 1.7; }
+  .feature-tags { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 16px; }
+  .tag { background: var(--gray-100); color: var(--gray-600); font-size: 11px; font-weight: 600; padding: 3px 10px; border-radius: 20px; }
+
+  /* WARNING */
+  #warning { background: #fff; }
+  .warning-layout { display: grid; grid-template-columns: 1fr 1fr; gap: 32px; align-items: start; }
+  .warning-map { background: var(--gray-900); border-radius: var(--radius-lg); padding: 24px; min-height: 360px; }
+  .warning-map-title { color: rgba(255,255,255,.6); font-size: 12px; font-weight: 600; letter-spacing: 1px; margin-bottom: 20px; }
+  .risk-zones { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; }
+  .risk-zone { border-radius: 10px; padding: 16px 12px; text-align: center; transition: all .3s; cursor: pointer; }
+  .risk-zone:hover { transform: scale(1.05); }
+  .risk-zone.high { background: rgba(239,68,68,.15); border: 1px solid rgba(239,68,68,.3); }
+  .risk-zone.medium { background: rgba(245,158,11,.15); border: 1px solid rgba(245,158,11,.3); }
+  .risk-zone.low { background: rgba(16,185,129,.15); border: 1px solid rgba(16,185,129,.3); }
+  .risk-zone .level { font-size: 20px; margin-bottom: 6px; }
+  .risk-zone .name { color: rgba(255,255,255,.8); font-size: 11px; font-weight: 600; margin-bottom: 4px; }
+  .risk-zone .count { font-size: 20px; font-weight: 800; }
+  .risk-zone.high .count { color: #ef4444; }
+  .risk-zone.medium .count { color: #f59e0b; }
+  .risk-zone.low .count { color: #10b981; }
+  .warning-list { display: flex; flex-direction: column; gap: 12px; }
+  .warning-item { background: #fff; border: 1px solid var(--gray-200); border-radius: var(--radius); padding: 16px 20px; display: flex; align-items: center; gap: 14px; transition: all .2s; cursor: pointer; }
+  .warning-item:hover { border-color: var(--primary); box-shadow: var(--shadow); }
+  .warning-level { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+  .warning-level.h { background: var(--danger); }
+  .warning-level.m { background: var(--warning); }
+  .warning-level.l { background: var(--success); }
+  .warning-item .info { flex: 1; }
+  .warning-item .w-title { font-size: 14px; font-weight: 600; color: var(--gray-800); }
+  .warning-item .w-loc { font-size: 12px; color: var(--gray-400); margin-top: 3px; }
+  .warning-item .w-time { font-size: 12px; color: var(--gray-400); }
+  .badge { font-size: 11px; font-weight: 700; padding: 3px 9px; border-radius: 6px; }
+  .badge.danger { background: #fef2f2; color: var(--danger); }
+  .badge.warning { background: #fffbeb; color: var(--warning); }
+  .badge.success { background: #ecfdf5; color: var(--success); }
+
+  /* DASHBOARD */
+  #dashboard { background: var(--gray-50); }
+  .dashboard-grid { display: grid; grid-template-columns: repeat(4,1fr); gap: 16px; margin-bottom: 28px; }
+  .kpi-card { background: #fff; border-radius: var(--radius-lg); padding: 20px 24px; border: 1px solid var(--gray-200); transition: all .2s; }
+  .kpi-card:hover { box-shadow: var(--shadow); transform: translateY(-2px); }
+  .kpi-card .kpi-label { font-size: 12px; color: var(--gray-400); font-weight: 600; letter-spacing: .5px; margin-bottom: 8px; }
+  .kpi-card .kpi-value { font-size: 30px; font-weight: 800; color: var(--gray-900); line-height: 1; margin-bottom: 8px; }
+  .kpi-card .kpi-change { font-size: 12px; font-weight: 600; }
+  .kpi-card .kpi-change.up { color: var(--danger); }
+  .kpi-card .kpi-change.down { color: var(--success); }
+  .kpi-card .kpi-change.neutral { color: var(--gray-400); }
+  .chart-grid { display: grid; grid-template-columns: 2fr 1fr; gap: 20px; }
+  .chart-card { background: #fff; border-radius: var(--radius-lg); padding: 24px; border: 1px solid var(--gray-200); }
+  .chart-card h4 { font-size: 15px; font-weight: 700; color: var(--gray-900); margin-bottom: 4px; }
+  .chart-card .sub { font-size: 12px; color: var(--gray-400); margin-bottom: 20px; }
+  .chart-wrap { position: relative; height: 240px; }
+
+  /* TRAINING */
+  #training { background: #fff; }
+  .training-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 20px; }
+  .course-card { border: 1px solid var(--gray-200); border-radius: var(--radius-lg); overflow: hidden; transition: all .3s; cursor: pointer; }
+  .course-card:hover { transform: translateY(-4px); box-shadow: var(--shadow-lg); border-color: transparent; }
+  .course-thumb { height: 120px; display: flex; align-items: center; justify-content: center; font-size: 48px; position: relative; }
+  .course-badge { position: absolute; top: 10px; right: 10px; font-size: 10px; font-weight: 700; padding: 3px 8px; border-radius: 6px; }
+  .course-badge.required { background: #fef2f2; color: var(--danger); }
+  .course-badge.new { background: var(--primary-light); color: var(--primary); }
+  .course-badge.hot { background: #fff7ed; color: #ea580c; }
+  .course-body { padding: 16px 20px; }
+  .course-body h4 { font-size: 15px; font-weight: 700; color: var(--gray-900); margin-bottom: 6px; }
+  .course-body p { font-size: 13px; color: var(--gray-600); line-height: 1.6; margin-bottom: 14px; }
+  .course-meta { display: flex; align-items: center; justify-content: space-between; }
+  .course-meta .duration { font-size: 12px; color: var(--gray-400); }
+  .progress-bar { height: 4px; background: var(--gray-100); border-radius: 2px; margin: 10px 0 4px; }
+  .progress-fill { height: 100%; border-radius: 2px; background: linear-gradient(90deg, var(--primary), var(--accent)); }
+  .course-meta .pct { font-size: 11px; color: var(--primary); font-weight: 600; }
+
+  /* REGULATIONS */
+  #regulations { background: var(--gray-50); }
+  .reg-layout { display: grid; grid-template-columns: 220px 1fr; gap: 28px; }
+  .reg-sidebar { background: #fff; border-radius: var(--radius-lg); padding: 20px; border: 1px solid var(--gray-200); height: fit-content; }
+  .reg-sidebar h4 { font-size: 13px; font-weight: 700; color: var(--gray-400); letter-spacing: .5px; margin-bottom: 12px; }
+  .reg-cat { display: flex; align-items: center; gap: 10px; padding: 9px 12px; border-radius: 8px; cursor: pointer; transition: all .2s; margin-bottom: 4px; text-decoration: none; }
+  .reg-cat:hover, .reg-cat.active { background: var(--primary-light); }
+  .reg-cat span:first-child { font-size: 16px; }
+  .reg-cat .cat-name { font-size: 13px; font-weight: 500; color: var(--gray-700); flex: 1; }
+  .reg-cat .cat-count { font-size: 11px; color: var(--gray-400); background: var(--gray-100); padding: 1px 7px; border-radius: 10px; }
+  .reg-cat.active .cat-name { color: var(--primary); font-weight: 600; }
+  .reg-search-bar { display: flex; gap: 8px; margin-bottom: 20px; }
+  .reg-search-bar input { flex: 1; border: 1px solid var(--gray-200); border-radius: 10px; padding: 10px 16px; font-size: 14px; outline: none; transition: border-color .2s; }
+  .reg-search-bar input:focus { border-color: var(--primary); }
+  .reg-search-bar button { background: var(--primary); color: #fff; border: none; border-radius: 10px; padding: 10px 20px; font-size: 14px; font-weight: 600; cursor: pointer; }
+  .reg-list { display: flex; flex-direction: column; gap: 12px; }
+  .reg-item { background: #fff; border: 1px solid var(--gray-200); border-radius: var(--radius); padding: 18px 22px; display: flex; align-items: flex-start; gap: 16px; transition: all .2s; cursor: pointer; }
+  .reg-item:hover { border-color: var(--primary); box-shadow: var(--shadow); }
+  .reg-item-icon { font-size: 28px; flex-shrink: 0; }
+  .reg-item-body { flex: 1; }
+  .reg-item-body h4 { font-size: 15px; font-weight: 700; color: var(--gray-900); margin-bottom: 4px; }
+  .reg-item-body p { font-size: 13px; color: var(--gray-600); }
+  .reg-item-meta { display: flex; gap: 8px; margin-top: 8px; flex-wrap: wrap; }
+  .reg-tag { background: var(--gray-100); color: var(--gray-600); font-size: 11px; padding: 2px 9px; border-radius: 6px; }
+  .reg-tag.active { background: var(--primary-light); color: var(--primary); }
+  .reg-item-right { text-align: right; flex-shrink: 0; }
+  .reg-item-right .date { font-size: 12px; color: var(--gray-400); }
+  .reg-item-right .btn-view { display: inline-block; margin-top: 8px; background: var(--primary); color: #fff; font-size: 12px; font-weight: 600; padding: 4px 12px; border-radius: 6px; border: none; cursor: pointer; text-decoration: none; }
+
+  /* CTA */
+  .cta { background: linear-gradient(135deg, var(--gray-900), #1e3a8a); padding: 80px 5%; text-align: center; color: #fff; }
+  .cta h2 { font-size: clamp(24px, 3.5vw, 36px); font-weight: 800; margin-bottom: 14px; }
+  .cta p { font-size: 16px; color: rgba(255,255,255,.7); margin-bottom: 32px; }
+  .cta-btns { display: flex; gap: 14px; justify-content: center; flex-wrap: wrap; }
+
+  /* FOOTER */
+  footer { background: var(--gray-900); color: rgba(255,255,255,.6); padding: 48px 5% 28px; }
+  .footer-inner { max-width: 1200px; margin: 0 auto; }
+  .footer-top { display: grid; grid-template-columns: 2fr 1fr 1fr 1fr; gap: 40px; margin-bottom: 40px; }
+  .footer-logo-text { font-size: 20px; font-weight: 800; color: #fff; margin-bottom: 10px; }
+  .footer-logo-text span { color: var(--accent); }
+  .footer-desc { font-size: 13px; line-height: 1.8; }
+  .footer-col h5 { color: #fff; font-size: 13px; font-weight: 700; margin-bottom: 14px; }
+  .footer-col a { display: block; color: rgba(255,255,255,.5); font-size: 13px; text-decoration: none; margin-bottom: 8px; transition: color .2s; }
+  .footer-col a:hover { color: #fff; }
+  .footer-author {
+    margin-top: 28px; padding: 16px 20px;
+    background: rgba(255,255,255,.04); border: 1px solid rgba(255,255,255,.08);
+    border-radius: var(--radius); display: flex; align-items: center; gap: 14px; flex-wrap: wrap;
+  }
+  .footer-author .fa-icon { font-size: 28px; }
+  .footer-author .fa-id { font-size: 11px; color: rgba(255,255,255,.4); letter-spacing: .5px; }
+  .footer-author .fa-name { font-size: 17px; font-weight: 800; color: #fff; }
+  .footer-author .fa-role { font-size: 12px; color: rgba(255,255,255,.5); margin-top: 2px; }
+  .footer-bottom { border-top: 1px solid rgba(255,255,255,.08); padding-top: 20px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; }
+  .footer-bottom p { font-size: 12px; }
+
+  /* RESPONSIVE */
+  @media (max-width: 1024px) {
+    .footer-top { grid-template-columns: 1fr 1fr; }
+  }
+  @media (max-width: 900px) {
+    .hero-inner { flex-direction: column; }
+    .hero-visual { flex: none; width: 100%; }
+    .warning-layout { grid-template-columns: 1fr; }
+    .dashboard-grid { grid-template-columns: repeat(2,1fr); }
+    .chart-grid { grid-template-columns: 1fr; }
+    .training-grid { grid-template-columns: repeat(2,1fr); }
+    .reg-layout { grid-template-columns: 1fr; }
+    .nav-links { display: none; }
+  }
+  @media (max-width: 600px) {
+    .training-grid { grid-template-columns: 1fr; }
+    .dashboard-grid { grid-template-columns: 1fr 1fr; }
+    .hero-stats { gap: 24px; }
+    .footer-top { grid-template-columns: 1fr; }
+    .lang-switcher .lang-btn { padding: 5px 7px; font-size: 11px; }
+  }
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <a href="#" class="nav-logo">
+    <div class="nav-logo-icon">🛡️</div>
+    <div class="nav-logo-text">安<span>盾</span>云</div>
+  </a>
+  <div class="nav-right">
+    <div class="nav-links">
+      <a href="#warning" class="active" data-i18n="nav_warning">风险预警</a>
+      <a href="#dashboard" data-i18n="nav_dashboard">数据看板</a>
+      <a href="#training" data-i18n="nav_training">安全培训</a>
+      <a href="#regulations" data-i18n="nav_regulations">法规库</a>
+    </div>
+    <div class="lang-switcher">
+      <button class="lang-btn active" onclick="setLang('zh')">中文</button>
+      <button class="lang-btn" onclick="setLang('en')">EN</button>
+      <button class="lang-btn" onclick="setLang('ko')">한국어</button>
+    </div>
+    <button class="nav-btn" data-i18n="nav_trial">免费试用</button>
+  </div>
+</nav>
+
+<!-- AUTHOR BANNER -->
+<div class="author-banner">
+  <span class="author-label" data-i18n="author_label">平台创建者</span>
+  <div class="author-badge">
+    <span class="id">PDF202217135</span>
+    <span class="sep">|</span>
+    <span class="name">고우함</span>
+  </div>
+</div>
+
+<!-- HERO -->
+<div class="hero">
+  <div class="hero-inner">
+    <div class="hero-text">
+      <div class="hero-badge" data-i18n="hero_badge">产业安全综合管理平台 · 2025</div>
+      <h1 data-i18n="hero_title">守护每一位<br><em>产业工人的安全</em></h1>
+      <p data-i18n="hero_desc">集事故风险预警、安全培训、数据可视化、法规政策于一体，为企业提供全方位智能化安全管理解决方案。</p>
+      <div class="hero-actions">
+        <a href="#dashboard" class="btn-primary" data-i18n="hero_btn1">查看数据看板</a>
+        <a href="#training" class="btn-outline" data-i18n="hero_btn2">开始培训课程</a>
+      </div>
+      <div class="hero-stats">
+        <div class="hero-stat">
+          <span class="val">12,847</span>
+          <span class="lbl" data-i18n="stat1">接入企业</span>
+        </div>
+        <div class="hero-stat">
+          <span class="val">98.6%</span>
+          <span class="lbl" data-i18n="stat2">预警准确率</span>
+        </div>
+        <div class="hero-stat">
+          <span class="val">↓43%</span>
+          <span class="lbl" data-i18n="stat3">事故率降低</span>
+        </div>
+      </div>
+    </div>
+    <div class="hero-visual">
+      <div class="alert-card">
+        <div class="alert-card-title" data-i18n="alert_title">🔔 实时风险预警</div>
+        <div class="alert-item">
+          <div class="alert-dot red"></div>
+          <div class="alert-info">
+            <div class="title" data-i18n="a1_title">A区高空作业未系安全带</div>
+            <div class="sub" data-i18n="a1_loc">3号厂房 · 2楼施工区</div>
+          </div>
+          <div class="alert-time" data-i18n="a1_time">刚刚</div>
+        </div>
+        <div class="alert-item">
+          <div class="alert-dot yellow"></div>
+          <div class="alert-info">
+            <div class="title" data-i18n="a2_title">化学品存储区温度异常</div>
+            <div class="sub" data-i18n="a2_loc">仓储中心 · B库房</div>
+          </div>
+          <div class="alert-time" data-i18n="a2_time">3分钟前</div>
+        </div>
+        <div class="alert-item">
+          <div class="alert-dot green"></div>
+          <div class="alert-info">
+            <div class="title" data-i18n="a3_title">消防通道巡检完成</div>
+            <div class="sub" data-i18n="a3_loc">综合楼 · 全楼层</div>
+          </div>
+          <div class="alert-time" data-i18n="a3_time">12分钟前</div>
+        </div>
+        <div class="alert-item">
+          <div class="alert-dot yellow"></div>
+          <div class="alert-info">
+            <div class="title" data-i18n="a4_title">特种设备证书即将到期</div>
+            <div class="sub" data-i18n="a4_loc">起重机 CRN-087</div>
+          </div>
+          <div class="alert-time" data-i18n="a4_time">1小时前</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- FEATURES -->
+<section id="features">
+  <div class="section-inner">
+    <div class="section-header">
+      <div class="section-tag" data-i18n="feat_tag">平台功能</div>
+      <h2 data-i18n="feat_h2">一站式产业安全管理</h2>
+      <p data-i18n="feat_p">覆盖安全生产全流程，从隐患识别到事故处置，全面守护工作场所安全</p>
+    </div>
+    <div class="features-grid">
+      <div class="feature-card">
+        <div class="feature-icon" style="background:#fef2f2">🚨</div>
+        <h3 data-i18n="f1_h">事故风险预警</h3>
+        <p data-i18n="f1_p">AI 实时分析作业环境，自动识别违规行为与安全隐患，毫秒级推送预警通知。</p>
+        <div class="feature-tags"><span class="tag" data-i18n="f1_t1">AI识别</span><span class="tag" data-i18n="f1_t2">实时监控</span><span class="tag" data-i18n="f1_t3">自动告警</span></div>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon" style="background:#eff6ff">📊</div>
+        <h3 data-i18n="f2_h">数据统计看板</h3>
+        <p data-i18n="f2_p">多维度可视化展示安全数据，支持自定义报表，助力管理者科学决策。</p>
+        <div class="feature-tags"><span class="tag" data-i18n="f2_t1">可视化</span><span class="tag" data-i18n="f2_t2">自定义报表</span><span class="tag" data-i18n="f2_t3">趋势分析</span></div>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon" style="background:#ecfdf5">🎓</div>
+        <h3 data-i18n="f3_h">安全培训中心</h3>
+        <p data-i18n="f3_p">涵盖三级安全教育、特种作业培训，在线考试与证书管理一体化。</p>
+        <div class="feature-tags"><span class="tag" data-i18n="f3_t1">在线课程</span><span class="tag" data-i18n="f3_t2">考试系统</span><span class="tag" data-i18n="f3_t3">证书管理</span></div>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon" style="background:#fff7ed">📋</div>
+        <h3 data-i18n="f4_h">法规政策库</h3>
+        <p data-i18n="f4_p">实时更新国家及地方安全生产法规、标准、操作规程，智能检索与推送。</p>
+        <div class="feature-tags"><span class="tag" data-i18n="f4_t1">法规全库</span><span class="tag" data-i18n="f4_t2">智能检索</span><span class="tag" data-i18n="f4_t3">自动更新</span></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- WARNING -->
+<section id="warning">
+  <div class="section-inner">
+    <div class="section-header">
+      <div class="section-tag" data-i18n="w_tag">风险预警</div>
+      <h2 data-i18n="w_h2">实时风险监控与预警</h2>
+      <p data-i18n="w_p">7×24小时全天候监控，AI驱动的隐患识别，让风险无处遁形</p>
+    </div>
+    <div class="warning-layout">
+      <div class="warning-map">
+        <div class="warning-map-title" data-i18n="w_map_title">📍 厂区风险分布</div>
+        <div class="risk-zones">
+          <div class="risk-zone high"><div class="level">🔴</div><div class="name" data-i18n="rz_high">高风险</div><div class="count">3</div></div>
+          <div class="risk-zone medium"><div class="level">🟡</div><div class="name" data-i18n="rz_mid">中风险</div><div class="count">8</div></div>
+          <div class="risk-zone low"><div class="level">🟢</div><div class="name" data-i18n="rz_low">低风险</div><div class="count">21</div></div>
+          <div class="risk-zone high"><div class="level">⚠️</div><div class="name" data-i18n="rz_a">A车间</div><div class="count">2</div></div>
+          <div class="risk-zone medium"><div class="level">📦</div><div class="name" data-i18n="rz_b">B仓库</div><div class="count">4</div></div>
+          <div class="risk-zone low"><div class="level">🏗️</div><div class="name" data-i18n="rz_c">C工地</div><div class="count">1</div></div>
+        </div>
+        <div style="margin-top:20px;padding:14px;background:rgba(239,68,68,.1);border-radius:10px;border:1px solid rgba(239,68,68,.2);">
+          <div style="color:#f87171;font-size:13px;font-weight:700;margin-bottom:6px;" data-i18n="w_pending">⚡ 今日待处理隐患：11 项</div>
+          <div style="color:rgba(255,255,255,.5);font-size:12px;line-height:1.8;" data-i18n="w_note">高风险 3 项需立即整改<br>中风险 8 项限期48小时整改</div>
+        </div>
+      </div>
+      <div class="warning-list">
+        <div class="warning-item"><div class="warning-level h"></div><div class="info"><div class="w-title" data-i18n="wi1_t">未佩戴安全帽进入施工区</div><div class="w-loc" data-i18n="wi1_l">📍 3号厂房 · A车间入口</div></div><div><span class="badge danger" data-i18n="badge_h">高风险</span><div class="w-time">09:23</div></div></div>
+        <div class="warning-item"><div class="warning-level h"></div><div class="info"><div class="w-title" data-i18n="wi2_t">高空作业平台超载</div><div class="w-loc" data-i18n="wi2_l">📍 2号车间 · 三层作业平台</div></div><div><span class="badge danger" data-i18n="badge_h">高风险</span><div class="w-time">08:47</div></div></div>
+        <div class="warning-item"><div class="warning-level m"></div><div class="info"><div class="w-title" data-i18n="wi3_t">危化品仓库通风系统异常</div><div class="w-loc" data-i18n="wi3_l">📍 B仓库 · 化学品存储区</div></div><div><span class="badge warning" data-i18n="badge_m">中风险</span><div class="w-time">08:15</div></div></div>
+        <div class="warning-item"><div class="warning-level m"></div><div class="info"><div class="w-title" data-i18n="wi4_t">消防栓被遮挡阻塞</div><div class="w-loc" data-i18n="wi4_l">📍 综合楼 · 北侧走廊</div></div><div><span class="badge warning" data-i18n="badge_m">中风险</span><div class="w-time" data-i18n="yesterday">昨天</div></div></div>
+        <div class="warning-item"><div class="warning-level l"></div><div class="info"><div class="w-title" data-i18n="wi5_t">灭火器检查证过期</div><div class="w-loc" data-i18n="wi5_l">📍 食堂 · 后厨区域</div></div><div><span class="badge success" data-i18n="badge_l">低风险</span><div class="w-time" data-i18n="twodays">2天前</div></div></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- DASHBOARD -->
+<section id="dashboard">
+  <div class="section-inner">
+    <div class="section-header">
+      <div class="section-tag" data-i18n="d_tag">数据看板</div>
+      <h2 data-i18n="d_h2">安全生产数据总览</h2>
+      <p data-i18n="d_p">多维度实时数据可视化，让安全管理有据可依</p>
+    </div>
+    <div class="dashboard-grid">
+      <div class="kpi-card"><div class="kpi-label" data-i18n="kpi1_l">本月事故次数</div><div class="kpi-value">2</div><div class="kpi-change down" data-i18n="kpi1_c">↓ 60% 较上月</div></div>
+      <div class="kpi-card"><div class="kpi-label" data-i18n="kpi2_l">隐患整改完成率</div><div class="kpi-value">94.2%</div><div class="kpi-change down" data-i18n="kpi2_c">↑ 3.1% 较上月</div></div>
+      <div class="kpi-card"><div class="kpi-label" data-i18n="kpi3_l">安全培训完成率</div><div class="kpi-value">87.5%</div><div class="kpi-change neutral" data-i18n="kpi3_c">持平 上月</div></div>
+      <div class="kpi-card"><div class="kpi-label" data-i18n="kpi4_l">连续无事故天数</div><div class="kpi-value">127</div><div class="kpi-change down" data-i18n="kpi4_c">↑ 持续增长</div></div>
+    </div>
+    <div class="chart-grid">
+      <div class="chart-card">
+        <h4 data-i18n="chart1_h">近12个月事故与隐患趋势</h4>
+        <div class="sub" data-i18n="chart1_s">事故次数 vs 隐患上报数量</div>
+        <div class="chart-wrap"><canvas id="trendChart"></canvas></div>
+      </div>
+      <div class="chart-card">
+        <h4 data-i18n="chart2_h">事故类型分布</h4>
+        <div class="sub" data-i18n="chart2_s">按事故类型占比统计</div>
+        <div class="chart-wrap"><canvas id="typeChart"></canvas></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- TRAINING -->
+<section id="training">
+  <div class="section-inner">
+    <div class="section-header">
+      <div class="section-tag" data-i18n="tr_tag">安全培训</div>
+      <h2 data-i18n="tr_h2">专业安全培训课程</h2>
+      <p data-i18n="tr_p">覆盖多行业安全知识体系，支持在线学习与考核，证书全程可追溯</p>
+    </div>
+    <div class="training-grid">
+      <div class="course-card">
+        <div class="course-thumb" style="background:linear-gradient(135deg,#fef2f2,#fee2e2)">🔥<span class="course-badge required" data-i18n="badge_req">必修</span></div>
+        <div class="course-body"><h4 data-i18n="c1_h">消防安全基础知识</h4><p data-i18n="c1_p">火灾预防、灭火器使用、疏散逃生路线，企业全员必修课程。</p><div class="progress-bar"><div class="progress-fill" style="width:75%"></div></div><div class="course-meta"><span class="duration" data-i18n="c1_d">⏱ 120分钟</span><span class="pct">75%</span></div></div>
+      </div>
+      <div class="course-card">
+        <div class="course-thumb" style="background:linear-gradient(135deg,#eff6ff,#dbeafe)">⚡<span class="course-badge new" data-i18n="badge_new">最新</span></div>
+        <div class="course-body"><h4 data-i18n="c2_h">电气安全操作规程</h4><p data-i18n="c2_p">电气设备安全使用、触电急救、漏电保护，适用于电气作业人员。</p><div class="progress-bar"><div class="progress-fill" style="width:30%"></div></div><div class="course-meta"><span class="duration" data-i18n="c2_d">⏱ 90分钟</span><span class="pct">30%</span></div></div>
+      </div>
+      <div class="course-card">
+        <div class="course-thumb" style="background:linear-gradient(135deg,#ecfdf5,#d1fae5)">🏗️<span class="course-badge hot" data-i18n="badge_hot">热门</span></div>
+        <div class="course-body"><h4 data-i18n="c3_h">高空作业安全规范</h4><p data-i18n="c3_p">安全带使用、脚手架检查、高空坠落防护，特种作业必备培训。</p><div class="progress-bar"><div class="progress-fill" style="width:0%"></div></div><div class="course-meta"><span class="duration" data-i18n="c3_d">⏱ 150分钟</span><span class="pct" data-i18n="not_started">未开始</span></div></div>
+      </div>
+      <div class="course-card">
+        <div class="course-thumb" style="background:linear-gradient(135deg,#fff7ed,#fed7aa)">☣️<span class="course-badge required" data-i18n="badge_req">必修</span></div>
+        <div class="course-body"><h4 data-i18n="c4_h">危险化学品管理</h4><p data-i18n="c4_p">危化品分类、储存规范、泄漏应急处置，化工行业核心课程。</p><div class="progress-bar"><div class="progress-fill" style="width:100%"></div></div><div class="course-meta"><span class="duration" data-i18n="c4_d">⏱ 180分钟</span><span class="pct" data-i18n="completed">已完成 ✓</span></div></div>
+      </div>
+      <div class="course-card">
+        <div class="course-thumb" style="background:linear-gradient(135deg,#fdf4ff,#e9d5ff)">🚑<span class="course-badge new" data-i18n="badge_new">最新</span></div>
+        <div class="course-body"><h4 data-i18n="c5_h">工伤急救与应急处置</h4><p data-i18n="c5_p">现场急救技能、CPR操作、工伤上报流程，全员应掌握的急救知识。</p><div class="progress-bar"><div class="progress-fill" style="width:55%"></div></div><div class="course-meta"><span class="duration" data-i18n="c5_d">⏱ 60分钟</span><span class="pct">55%</span></div></div>
+      </div>
+      <div class="course-card">
+        <div class="course-thumb" style="background:linear-gradient(135deg,#f0fdf4,#bbf7d0)">🦺<span class="course-badge hot" data-i18n="badge_hot">热门</span></div>
+        <div class="course-body"><h4 data-i18n="c6_h">个人防护装备（PPE）使用</h4><p data-i18n="c6_p">各类PPE的选用标准、佩戴方法和维护保养，工人入职必修课。</p><div class="progress-bar"><div class="progress-fill" style="width:20%"></div></div><div class="course-meta"><span class="duration" data-i18n="c6_d">⏱ 45分钟</span><span class="pct">20%</span></div></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- REGULATIONS -->
+<section id="regulations">
+  <div class="section-inner">
+    <div class="section-header">
+      <div class="section-tag" data-i18n="reg_tag">法规政策库</div>
+      <h2 data-i18n="reg_h2">全面的安全法规资源</h2>
+      <p data-i18n="reg_p">实时同步国家及地方安全生产法规，智能检索，一键下载</p>
+    </div>
+    <div class="reg-layout">
+      <div class="reg-sidebar">
+        <h4 data-i18n="reg_browse">分类浏览</h4>
+        <a href="#" class="reg-cat active"><span>📚</span><span class="cat-name" data-i18n="rc_all">全部法规</span><span class="cat-count">328</span></a>
+        <a href="#" class="reg-cat"><span>⚖️</span><span class="cat-name" data-i18n="rc_law">法律法规</span><span class="cat-count">48</span></a>
+        <a href="#" class="reg-cat"><span>📐</span><span class="cat-name" data-i18n="rc_std">国家标准</span><span class="cat-count">112</span></a>
+        <a href="#" class="reg-cat"><span>📋</span><span class="cat-name" data-i18n="rc_proc">操作规程</span><span class="cat-count">87</span></a>
+        <a href="#" class="reg-cat"><span>🏭</span><span class="cat-name" data-i18n="rc_ind">行业规范</span><span class="cat-count">63</span></a>
+        <a href="#" class="reg-cat"><span>📍</span><span class="cat-name" data-i18n="rc_local">地方法规</span><span class="cat-count">18</span></a>
+      </div>
+      <div>
+        <div class="reg-search-bar">
+          <input type="text" data-i18n-placeholder="reg_search_ph" placeholder="搜索法规名称、关键词...">
+          <button data-i18n="reg_search_btn">🔍 搜索</button>
+        </div>
+        <div class="reg-list">
+          <div class="reg-item"><div class="reg-item-icon">⚖️</div><div class="reg-item-body"><h4 data-i18n="ri1_h">中华人民共和国安全生产法</h4><p data-i18n="ri1_p">规范生产经营单位安全生产行为，保障从业人员生命安全的基本法律。</p><div class="reg-item-meta"><span class="reg-tag active" data-i18n="reg_valid">现行有效</span><span class="reg-tag" data-i18n="reg_law">法律</span><span class="reg-tag" data-i18n="reg_all_ind">全行业</span></div></div><div class="reg-item-right"><div class="date">2021-09-01</div><a href="#" class="btn-view" data-i18n="reg_view">查看全文</a></div></div>
+          <div class="reg-item"><div class="reg-item-icon">🔥</div><div class="reg-item-body"><h4 data-i18n="ri2_h">消防安全技术规范 GB50016</h4><p data-i18n="ri2_p">建筑防火设计技术规范，适用于工业建筑和民用建筑的防火设计。</p><div class="reg-item-meta"><span class="reg-tag active" data-i18n="reg_valid">现行有效</span><span class="reg-tag" data-i18n="reg_gb">国家标准</span><span class="reg-tag" data-i18n="reg_build">建筑</span></div></div><div class="reg-item-right"><div class="date">2018</div><a href="#" class="btn-view" data-i18n="reg_view">查看全文</a></div></div>
+          <div class="reg-item"><div class="reg-item-icon">☣️</div><div class="reg-item-body"><h4 data-i18n="ri3_h">危险化学品安全管理条例</h4><p data-i18n="ri3_p">危险化学品生产、储存、运输、使用的安全管理规定。</p><div class="reg-item-meta"><span class="reg-tag active" data-i18n="reg_valid">现行有效</span><span class="reg-tag" data-i18n="reg_admin">行政法规</span><span class="reg-tag" data-i18n="reg_chem">化工</span></div></div><div class="reg-item-right"><div class="date">2013</div><a href="#" class="btn-view" data-i18n="reg_view">查看全文</a></div></div>
+          <div class="reg-item"><div class="reg-item-icon">🏗️</div><div class="reg-item-body"><h4 data-i18n="ri4_h">建筑施工高处作业安全技术规范</h4><p data-i18n="ri4_p">JGJ80-2016，规定建筑施工高处作业的安全防护措施和技术要求。</p><div class="reg-item-meta"><span class="reg-tag active" data-i18n="reg_valid">现行有效</span><span class="reg-tag" data-i18n="reg_ind_std">行业标准</span><span class="reg-tag" data-i18n="reg_build">建筑</span></div></div><div class="reg-item-right"><div class="date">2016-12-01</div><a href="#" class="btn-view" data-i18n="reg_view">查看全文</a></div></div>
+          <div class="reg-item"><div class="reg-item-icon">⚡</div><div class="reg-item-body"><h4 data-i18n="ri5_h">工业企业电气安全规程</h4><p data-i18n="ri5_p">工业企业电气设备的安装、运行、维修及安全防护技术规程。</p><div class="reg-item-meta"><span class="reg-tag active" data-i18n="reg_valid">现行有效</span><span class="reg-tag" data-i18n="reg_gb">国家标准</span><span class="reg-tag" data-i18n="reg_elec">电气</span></div></div><div class="reg-item-right"><div class="date">2020-06-01</div><a href="#" class="btn-view" data-i18n="reg_view">查看全文</a></div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- CTA -->
+<div class="cta" id="cta">
+  <h2 data-i18n="cta_h">开始守护您企业的安全</h2>
+  <p data-i18n="cta_p">免费试用 14 天，无需信用卡，支持随时取消</p>
+  <div class="cta-btns">
+    <a href="#" class="btn-primary" data-i18n="cta_btn1">免费开始试用</a>
+    <a href="#" class="btn-outline" data-i18n="cta_btn2">预约演示</a>
+  </div>
+</div>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-inner">
+    <div class="footer-top">
+      <div>
+        <div class="footer-logo-text">安<span>盾</span>云</div>
+        <p class="footer-desc" data-i18n="footer_desc">致力于通过科技创新，提升企业安全生产管理水平，守护每一位产业工人的生命安全与健康。</p>
+        <div class="footer-author">
+          <div class="fa-icon">👨‍💻</div>
+          <div>
+            <div class="fa-id">PDF202217135</div>
+            <div class="fa-name">고우함</div>
+            <div class="fa-role" data-i18n="fa_role">平台设计与开发</div>
+          </div>
+        </div>
+      </div>
+      <div class="footer-col">
+        <h5 data-i18n="fc1_h">产品功能</h5>
+        <a href="#" data-i18n="fc1_1">风险预警</a>
+        <a href="#" data-i18n="fc1_2">数据看板</a>
+        <a href="#" data-i18n="fc1_3">安全培训</a>
+        <a href="#" data-i18n="fc1_4">法规政策库</a>
+      </div>
+      <div class="footer-col">
+        <h5 data-i18n="fc2_h">适用行业</h5>
+        <a href="#" data-i18n="fc2_1">建筑施工</a>
+        <a href="#" data-i18n="fc2_2">化工制造</a>
+        <a href="#" data-i18n="fc2_3">矿山采掘</a>
+        <a href="#" data-i18n="fc2_4">机械加工</a>
+      </div>
+      <div class="footer-col">
+        <h5 data-i18n="fc3_h">联系我们</h5>
+        <a href="#">📞 400-888-0000</a>
+        <a href="#">📧 contact@andun.cn</a>
+        <a href="#" data-i18n="fc3_addr">📍 北京市海淀区</a>
+        <a href="#" data-i18n="fc3_about">关于我们</a>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <p data-i18n="footer_copy">© 2025 安盾云 · 产业安全综合管理平台. All rights reserved.</p>
+      <p>京ICP备2025000001号</p>
+    </div>
+  </div>
+</footer>
+
+<script>
+// ─── i18n DATA ───────────────────────────────────────────────
+const i18n = {
+  zh: {
+    nav_warning:'风险预警', nav_dashboard:'数据看板', nav_training:'安全培训',
+    nav_regulations:'法规库', nav_trial:'免费试用',
+    author_label:'平台创建者',
+    hero_badge:'产业安全综合管理平台 · 2025',
+    hero_title:'守护每一位<br><em>产业工人的安全</em>',
+    hero_desc:'集事故风险预警、安全培训、数据可视化、法规政策于一体，为企业提供全方位智能化安全管理解决方案。',
+    hero_btn1:'查看数据看板', hero_btn2:'开始培训课程',
+    stat1:'接入企业', stat2:'预警准确率', stat3:'事故率降低',
+    alert_title:'🔔 实时风险预警',
+    a1_title:'A区高空作业未系安全带', a1_loc:'3号厂房 · 2楼施工区', a1_time:'刚刚',
+    a2_title:'化学品存储区温度异常', a2_loc:'仓储中心 · B库房', a2_time:'3分钟前',
+    a3_title:'消防通道巡检完成', a3_loc:'综合楼 · 全楼层', a3_time:'12分钟前',
+    a4_title:'特种设备证书即将到期', a4_loc:'起重机 CRN-087', a4_time:'1小时前',
+    feat_tag:'平台功能', feat_h2:'一站式产业安全管理',
+    feat_p:'覆盖安全生产全流程，从隐患识别到事故处置，全面守护工作场所安全',
+    f1_h:'事故风险预警', f1_p:'AI 实时分析作业环境，自动识别违规行为与安全隐患，毫秒级推送预警通知。',
+    f1_t1:'AI识别', f1_t2:'实时监控', f1_t3:'自动告警',
+    f2_h:'数据统计看板', f2_p:'多维度可视化展示安全数据，支持自定义报表，助力管理者科学决策。',
+    f2_t1:'可视化', f2_t2:'自定义报表', f2_t3:'趋势分析',
+    f3_h:'安全培训中心', f3_p:'涵盖三级安全教育、特种作业培训，在线考试与证书管理一体化。',
+    f3_t1:'在线课程', f3_t2:'考试系统', f3_t3:'证书管理',
+    f4_h:'法规政策库', f4_p:'实时更新国家及地方安全生产法规、标准、操作规程，智能检索与推送。',
+    f4_t1:'法规全库', f4_t2:'智能检索', f4_t3:'自动更新',
+    w_tag:'风险预警', w_h2:'实时风险监控与预警',
+    w_p:'7×24小时全天候监控，AI驱动的隐患识别，让风险无处遁形',
+    w_map_title:'📍 厂区风险分布',
+    rz_high:'高风险', rz_mid:'中风险', rz_low:'低风险',
+    rz_a:'A车间', rz_b:'B仓库', rz_c:'C工地',
+    w_pending:'⚡ 今日待处理隐患：11 项',
+    w_note:'高风险 3 项需立即整改<br>中风险 8 项限期48小时整改',
+    wi1_t:'未佩戴安全帽进入施工区', wi1_l:'📍 3号厂房 · A车间入口',
+    wi2_t:'高空作业平台超载', wi2_l:'📍 2号车间 · 三层作业平台',
+    wi3_t:'危化品仓库通风系统异常', wi3_l:'📍 B仓库 · 化学品存储区',
+    wi4_t:'消防栓被遮挡阻塞', wi4_l:'📍 综合楼 · 北侧走廊',
+    wi5_t:'灭火器检查证过期', wi5_l:'📍 食堂 · 后厨区域',
+    badge_h:'高风险', badge_m:'中风险', badge_l:'低风险',
+    yesterday:'昨天', twodays:'2天前',
+    d_tag:'数据看板', d_h2:'安全生产数据总览',
+    d_p:'多维度实时数据可视化，让安全管理有据可依',
+    kpi1_l:'本月事故次数', kpi1_c:'↓ 60% 较上月',
+    kpi2_l:'隐患整改完成率', kpi2_c:'↑ 3.1% 较上月',
+    kpi3_l:'安全培训完成率', kpi3_c:'持平 上月',
+    kpi4_l:'连续无事故天数', kpi4_c:'↑ 持续增长',
+    chart1_h:'近12个月事故与隐患趋势', chart1_s:'事故次数 vs 隐患上报数量',
+    chart2_h:'事故类型分布', chart2_s:'按事故类型占比统计',
+    tr_tag:'安全培训', tr_h2:'专业安全培训课程',
+    tr_p:'覆盖多行业安全知识体系，支持在线学习与考核，证书全程可追溯',
+    badge_req:'必修', badge_new:'最新', badge_hot:'热门',
+    c1_h:'消防安全基础知识', c1_p:'火灾预防、灭火器使用、疏散逃生路线，企业全员必修课程。', c1_d:'⏱ 120分钟',
+    c2_h:'电气安全操作规程', c2_p:'电气设备安全使用、触电急救、漏电保护，适用于电气作业人员。', c2_d:'⏱ 90分钟',
+    c3_h:'高空作业安全规范', c3_p:'安全带使用、脚手架检查、高空坠落防护，特种作业必备培训。', c3_d:'⏱ 150分钟',
+    c4_h:'危险化学品管理', c4_p:'危化品分类、储存规范、泄漏应急处置，化工行业核心课程。', c4_d:'⏱ 180分钟',
+    c5_h:'工伤急救与应急处置', c5_p:'现场急救技能、CPR操作、工伤上报流程，全员应掌握的急救知识。', c5_d:'⏱ 60分钟',
+    c6_h:'个人防护装备（PPE）使用', c6_p:'各类PPE的选用标准、佩戴方法和维护保养，工人入职必修课。', c6_d:'⏱ 45分钟',
+    not_started:'未开始', completed:'已完成 ✓',
+    reg_tag:'法规政策库', reg_h2:'全面的安全法规资源',
+    reg_p:'实时同步国家及地方安全生产法规，智能检索，一键下载',
+    reg_browse:'分类浏览',
+    rc_all:'全部法规', rc_law:'法律法规', rc_std:'国家标准',
+    rc_proc:'操作规程', rc_ind:'行业规范', rc_local:'地方法规',
+    reg_search_ph:'搜索法规名称、关键词...', reg_search_btn:'🔍 搜索',
+    ri1_h:'中华人民共和国安全生产法', ri1_p:'规范生产经营单位安全生产行为，保障从业人员生命安全的基本法律。',
+    ri2_h:'消防安全技术规范 GB50016', ri2_p:'建筑防火设计技术规范，适用于工业建筑和民用建筑的防火设计。',
+    ri3_h:'危险化学品安全管理条例', ri3_p:'危险化学品生产、储存、运输、使用的安全管理规定。',
+    ri4_h:'建筑施工高处作业安全技术规范', ri4_p:'JGJ80-2016，规定建筑施工高处作业的安全防护措施和技术要求。',
+    ri5_h:'工业企业电气安全规程', ri5_p:'工业企业电气设备的安装、运行、维修及安全防护技术规程。',
+    reg_valid:'现行有效', reg_law:'法律', reg_all_ind:'全行业',
+    reg_gb:'国家标准', reg_build:'建筑', reg_admin:'行政法规',
+    reg_chem:'化工', reg_ind_std:'行业标准', reg_elec:'电气',
+    reg_view:'查看全文',
+    cta_h:'开始守护您企业的安全',
+    cta_p:'免费试用 14 天，无需信用卡，支持随时取消',
+    cta_btn1:'免费开始试用', cta_btn2:'预约演示',
+    footer_desc:'致力于通过科技创新，提升企业安全生产管理水平，守护每一位产业工人的生命安全与健康。',
+    fa_role:'平台设计与开发',
+    fc1_h:'产品功能', fc1_1:'风险预警', fc1_2:'数据看板', fc1_3:'安全培训', fc1_4:'法规政策库',
+    fc2_h:'适用行业', fc2_1:'建筑施工', fc2_2:'化工制造', fc2_3:'矿山采掘', fc2_4:'机械加工',
+    fc3_h:'联系我们', fc3_addr:'📍 北京市海淀区', fc3_about:'关于我们',
+    footer_copy:'© 2025 安盾云 · 产业安全综合管理平台. All rights reserved.',
+    chart_months:['1月','2月','3月','4月','5月','6月','7月','8月','9月','10月','11月','12月'],
+    chart_hazard:'隐患上报', chart_accident:'事故次数',
+    chart_types:['高空坠落','机械伤害','触电事故','化学品','火灾','其他'],
+  },
+  en: {
+    nav_warning:'Risk Alert', nav_dashboard:'Dashboard', nav_training:'Training',
+    nav_regulations:'Regulations', nav_trial:'Free Trial',
+    author_label:'Platform Creator',
+    hero_badge:'Industrial Safety Management Platform · 2025',
+    hero_title:'Protecting Every<br><em>Industrial Worker\'s Safety</em>',
+    hero_desc:'An all-in-one platform for accident risk alerts, safety training, data visualization, and regulatory policy — delivering intelligent safety management for enterprises.',
+    hero_btn1:'View Dashboard', hero_btn2:'Start Training',
+    stat1:'Enterprises', stat2:'Alert Accuracy', stat3:'Accident Rate ↓',
+    alert_title:'🔔 Real-time Risk Alerts',
+    a1_title:'No safety harness in Zone A', a1_loc:'Factory 3 · 2F Construction', a1_time:'Just now',
+    a2_title:'Abnormal temperature in chemical storage', a2_loc:'Warehouse · Block B', a2_time:'3 min ago',
+    a3_title:'Fire escape inspection completed', a3_loc:'Main Building · All floors', a3_time:'12 min ago',
+    a4_title:'Special equipment cert expiring soon', a4_loc:'Crane CRN-087', a4_time:'1 hr ago',
+    feat_tag:'Features', feat_h2:'All-in-One Industrial Safety',
+    feat_p:'Covering the full safety lifecycle — from hazard identification to incident response',
+    f1_h:'Accident Risk Warning', f1_p:'AI analyses the work environment in real time, automatically identifying violations and hazards, with millisecond-level alert notifications.',
+    f1_t1:'AI Detection', f1_t2:'Live Monitor', f1_t3:'Auto Alert',
+    f2_h:'Data Analytics Dashboard', f2_p:'Multi-dimensional visualization of safety data with custom reports to support data-driven decision making.',
+    f2_t1:'Visualization', f2_t2:'Custom Reports', f2_t3:'Trend Analysis',
+    f3_h:'Safety Training Center', f3_p:'Three-level safety education, special operations training, online exams and certificate management integrated.',
+    f3_t1:'Online Courses', f3_t2:'Exam System', f3_t3:'Certificates',
+    f4_h:'Regulations Library', f4_p:'Real-time updates on national and local safety regulations, standards, and operating procedures with smart search.',
+    f4_t1:'Full Library', f4_t2:'Smart Search', f4_t3:'Auto Update',
+    w_tag:'Risk Warning', w_h2:'Real-time Risk Monitoring & Alerts',
+    w_p:'24/7 monitoring powered by AI hazard detection — no risk goes unnoticed',
+    w_map_title:'📍 Site Risk Distribution',
+    rz_high:'High Risk', rz_mid:'Medium Risk', rz_low:'Low Risk',
+    rz_a:'Workshop A', rz_b:'Warehouse B', rz_c:'Site C',
+    w_pending:'⚡ Pending today: 11 hazards',
+    w_note:'3 high-risk items require immediate action<br>8 medium-risk items: 48-hour deadline',
+    wi1_t:'No hard hat in construction zone', wi1_l:'📍 Factory 3 · Workshop A Entrance',
+    wi2_t:'Elevated work platform overloaded', wi2_l:'📍 Workshop 2 · 3F Platform',
+    wi3_t:'Hazmat warehouse ventilation failure', wi3_l:'📍 Warehouse B · Chemical Area',
+    wi4_t:'Fire hydrant blocked', wi4_l:'📍 Main Building · North Corridor',
+    wi5_t:'Fire extinguisher inspection expired', wi5_l:'📍 Canteen · Kitchen Area',
+    badge_h:'High', badge_m:'Medium', badge_l:'Low',
+    yesterday:'Yesterday', twodays:'2 days ago',
+    d_tag:'Dashboard', d_h2:'Safety Data Overview',
+    d_p:'Real-time multi-dimensional data visualization for evidence-based safety management',
+    kpi1_l:'Accidents This Month', kpi1_c:'↓ 60% vs last month',
+    kpi2_l:'Hazard Rectification Rate', kpi2_c:'↑ 3.1% vs last month',
+    kpi3_l:'Training Completion Rate', kpi3_c:'Same as last month',
+    kpi4_l:'Consecutive Safe Days', kpi4_c:'↑ Continuously growing',
+    chart1_h:'12-Month Accident & Hazard Trend', chart1_s:'Accidents vs Hazard Reports',
+    chart2_h:'Accident Type Distribution', chart2_s:'Breakdown by accident type',
+    tr_tag:'Training', tr_h2:'Professional Safety Training',
+    tr_p:'Multi-industry safety curricula with online learning, assessment, and traceable certificates',
+    badge_req:'Required', badge_new:'New', badge_hot:'Popular',
+    c1_h:'Fire Safety Fundamentals', c1_p:'Fire prevention, extinguisher use, and evacuation routes — mandatory for all employees.', c1_d:'⏱ 120 min',
+    c2_h:'Electrical Safety Procedures', c2_p:'Safe use of electrical equipment, electric shock first aid, and leakage protection for electrical workers.', c2_d:'⏱ 90 min',
+    c3_h:'Working at Heights Safety', c3_p:'Safety harness use, scaffolding inspection, fall protection — essential for special operations.', c3_d:'⏱ 150 min',
+    c4_h:'Hazardous Chemicals Management', c4_p:'Classification, storage standards, and emergency spill response — core course for chemical industries.', c4_d:'⏱ 180 min',
+    c5_h:'First Aid & Emergency Response', c5_p:'On-site first aid skills, CPR, and work injury reporting procedures for all staff.', c5_d:'⏱ 60 min',
+    c6_h:'Personal Protective Equipment (PPE)', c6_p:'Selection standards, fitting methods, and maintenance of all PPE types — onboarding essential.', c6_d:'⏱ 45 min',
+    not_started:'Not started', completed:'Completed ✓',
+    reg_tag:'Regulations', reg_h2:'Comprehensive Safety Regulations',
+    reg_p:'Real-time sync of national and local safety regulations with smart search and one-click download',
+    reg_browse:'Browse by Category',
+    rc_all:'All Regulations', rc_law:'Laws & Regulations', rc_std:'National Standards',
+    rc_proc:'Operating Procedures', rc_ind:'Industry Codes', rc_local:'Local Regulations',
+    reg_search_ph:'Search regulation name or keyword...', reg_search_btn:'🔍 Search',
+    ri1_h:'Work Safety Law of the P.R.C.', ri1_p:'The fundamental law governing work safety behavior of production and business entities, protecting workers\' lives.',
+    ri2_h:'Fire Safety Technical Code GB50016', ri2_p:'Technical code for fire protection design of industrial and civil buildings.',
+    ri3_h:'Hazardous Chemicals Safety Management Regulations', ri3_p:'Regulations on safety management of production, storage, transport, and use of hazardous chemicals.',
+    ri4_h:'Technical Code for Work at Height in Construction JGJ80', ri4_p:'Specifies safety protection measures and technical requirements for working at height in construction.',
+    ri5_h:'Electrical Safety Regulations for Industrial Enterprises', ri5_p:'Technical regulations for installation, operation, maintenance, and safety protection of electrical equipment.',
+    reg_valid:'In Effect', reg_law:'Law', reg_all_ind:'All Industries',
+    reg_gb:'National Standard', reg_build:'Construction', reg_admin:'Administrative Regulation',
+    reg_chem:'Chemical', reg_ind_std:'Industry Standard', reg_elec:'Electrical',
+    reg_view:'View Full Text',
+    cta_h:'Start Protecting Your Enterprise Today',
+    cta_p:'14-day free trial · No credit card required · Cancel anytime',
+    cta_btn1:'Start Free Trial', cta_btn2:'Book a Demo',
+    footer_desc:'Dedicated to improving enterprise safety management through technology, protecting the life and health of every industrial worker.',
+    fa_role:'Platform Design & Development',
+    fc1_h:'Features', fc1_1:'Risk Alerts', fc1_2:'Dashboard', fc1_3:'Training', fc1_4:'Regulations',
+    fc2_h:'Industries', fc2_1:'Construction', fc2_2:'Chemical', fc2_3:'Mining', fc2_4:'Manufacturing',
+    fc3_h:'Contact Us', fc3_addr:'📍 Haidian, Beijing', fc3_about:'About Us',
+    footer_copy:'© 2025 AnDunYun · Industrial Safety Platform. All rights reserved.',
+    chart_months:['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'],
+    chart_hazard:'Hazard Reports', chart_accident:'Accidents',
+    chart_types:['Falls from Height','Machinery','Electric Shock','Chemicals','Fire','Others'],
+  },
+  ko: {
+    nav_warning:'위험 경보', nav_dashboard:'대시보드', nav_training:'안전 교육',
+    nav_regulations:'법규 라이브러리', nav_trial:'무료 체험',
+    author_label:'플랫폼 제작자',
+    hero_badge:'산업 안전 종합 관리 플랫폼 · 2025',
+    hero_title:'모든<br><em>산업 근로자의 안전을 지키다</em>',
+    hero_desc:'사고 위험 경보, 안전 교육, 데이터 시각화, 법규 정책을 하나로 통합하여 기업에 전방위 지능형 안전 관리 솔루션을 제공합니다.',
+    hero_btn1:'대시보드 보기', hero_btn2:'교육 시작하기',
+    stat1:'연결 기업 수', stat2:'경보 정확도', stat3:'사고율 감소',
+    alert_title:'🔔 실시간 위험 경보',
+    a1_title:'A구역 고소 작업 안전대 미착용', a1_loc:'3번 공장 · 2층 시공 구역', a1_time:'방금',
+    a2_title:'화학물질 보관구역 온도 이상', a2_loc:'물류 창고 · B구역', a2_time:'3분 전',
+    a3_title:'소방 통로 점검 완료', a3_loc:'본관 · 전층', a3_time:'12분 전',
+    a4_title:'특수 장비 인증서 만료 임박', a4_loc:'크레인 CRN-087', a4_time:'1시간 전',
+    feat_tag:'플랫폼 기능', feat_h2:'원스톱 산업 안전 관리',
+    feat_p:'안전 생산 전 과정을 커버하여 위험 식별부터 사고 처리까지 작업장 안전을 완벽하게 보호합니다',
+    f1_h:'사고 위험 경보', f1_p:'AI가 작업 환경을 실시간 분석하여 위반 행위와 안전 위험을 자동 식별하고 밀리초 단위로 경보를 발송합니다.',
+    f1_t1:'AI 감지', f1_t2:'실시간 모니터링', f1_t3:'자동 알림',
+    f2_h:'데이터 통계 대시보드', f2_p:'다차원 안전 데이터 시각화로 맞춤형 보고서를 지원하여 관리자의 과학적 의사결정을 돕습니다.',
+    f2_t1:'시각화', f2_t2:'맞춤 보고서', f2_t3:'트렌드 분석',
+    f3_h:'안전 교육 센터', f3_p:'3단계 안전 교육, 특수 작업 교육, 온라인 시험과 자격증 관리가 통합되어 있습니다.',
+    f3_t1:'온라인 강좌', f3_t2:'시험 시스템', f3_t3:'자격증 관리',
+    f4_h:'법규 정책 라이브러리', f4_p:'국가 및 지방 안전 생산 법규, 표준, 운영 규정을 실시간 업데이트하여 스마트 검색 및 푸시를 지원합니다.',
+    f4_t1:'전체 법규', f4_t2:'스마트 검색', f4_t3:'자동 업데이트',
+    w_tag:'위험 경보', w_h2:'실시간 위험 모니터링 및 경보',
+    w_p:'24시간 365일 모니터링, AI 기반 위험 식별로 위험 요소를 놓치지 않습니다',
+    w_map_title:'📍 공장 위험 분포',
+    rz_high:'고위험', rz_mid:'중위험', rz_low:'저위험',
+    rz_a:'A 작업장', rz_b:'B 창고', rz_c:'C 현장',
+    w_pending:'⚡ 오늘 처리 대기 위험: 11건',
+    w_note:'고위험 3건 즉시 시정 필요<br>중위험 8건 48시간 내 시정',
+    wi1_t:'안전모 미착용 시공 구역 진입', wi1_l:'📍 3번 공장 · A작업장 입구',
+    wi2_t:'고소 작업 플랫폼 초과 하중', wi2_l:'📍 2번 작업장 · 3층 플랫폼',
+    wi3_t:'위험물 창고 환기 시스템 이상', wi3_l:'📍 B창고 · 화학물질 보관구역',
+    wi4_t:'소화전 차단 막힘', wi4_l:'📍 본관 · 북쪽 복도',
+    wi5_t:'소화기 점검증 만료', wi5_l:'📍 식당 · 주방 구역',
+    badge_h:'고위험', badge_m:'중위험', badge_l:'저위험',
+    yesterday:'어제', twodays:'2일 전',
+    d_tag:'대시보드', d_h2:'안전 생산 데이터 개요',
+    d_p:'다차원 실시간 데이터 시각화로 안전 관리를 데이터에 기반하여 수행합니다',
+    kpi1_l:'이번 달 사고 건수', kpi1_c:'↓ 60% (전월 대비)',
+    kpi2_l:'위험 시정 완료율', kpi2_c:'↑ 3.1% (전월 대비)',
+    kpi3_l:'안전 교육 이수율', kpi3_c:'전월과 동일',
+    kpi4_l:'연속 무사고 일수', kpi4_c:'↑ 지속 증가',
+    chart1_h:'최근 12개월 사고 및 위험 트렌드', chart1_s:'사고 건수 vs 위험 신고 수',
+    chart2_h:'사고 유형 분포', chart2_s:'사고 유형별 비율 통계',
+    tr_tag:'안전 교육', tr_h2:'전문 안전 교육 과정',
+    tr_p:'다양한 산업의 안전 지식 체계를 커버하며 온라인 학습, 평가, 추적 가능한 자격증을 지원합니다',
+    badge_req:'필수', badge_new:'최신', badge_hot:'인기',
+    c1_h:'소방 안전 기초 지식', c1_p:'화재 예방, 소화기 사용, 대피 경로 — 전 직원 필수 과정입니다.', c1_d:'⏱ 120분',
+    c2_h:'전기 안전 운영 규정', c2_p:'전기 장비의 안전한 사용, 감전 응급처치, 누전 보호 — 전기 작업자 대상.', c2_d:'⏱ 90분',
+    c3_h:'고소 작업 안전 규정', c3_p:'안전대 사용, 비계 점검, 추락 방지 — 특수 작업 필수 교육.', c3_d:'⏱ 150분',
+    c4_h:'위험 화학물질 관리', c4_p:'위험물 분류, 보관 기준, 유출 긴급 처리 — 화학 산업 핵심 과정.', c4_d:'⏱ 180분',
+    c5_h:'산업 재해 응급처치 및 비상 대응', c5_p:'현장 응급 기술, CPR, 산재 신고 절차 — 전 직원 필수 응급 지식.', c5_d:'⏱ 60분',
+    c6_h:'개인 보호 장비 (PPE) 사용', c6_p:'각종 PPE 선택 기준, 착용 방법 및 유지 관리 — 신입 사원 필수 과정.', c6_d:'⏱ 45분',
+    not_started:'시작 전', completed:'완료 ✓',
+    reg_tag:'법규 라이브러리', reg_h2:'포괄적인 안전 법규 자원',
+    reg_p:'국가 및 지방 안전 생산 법규를 실시간 동기화하여 스마트 검색과 원클릭 다운로드를 지원합니다',
+    reg_browse:'분류별 탐색',
+    rc_all:'전체 법규', rc_law:'법률 및 규정', rc_std:'국가 표준',
+    rc_proc:'운영 규정', rc_ind:'업계 규범', rc_local:'지방 법규',
+    reg_search_ph:'법규 명칭 또는 키워드 검색...', reg_search_btn:'🔍 검색',
+    ri1_h:'중화인민공화국 안전생산법', ri1_p:'생산 경영 단위의 안전 생산 행위를 규범화하고 종사자의 생명 안전을 보장하는 기본 법률.',
+    ri2_h:'소방 안전 기술 규범 GB50016', ri2_p:'건축 방화 설계 기술 규범으로 산업 건축 및 민간 건축의 방화 설계에 적용됩니다.',
+    ri3_h:'위험 화학물질 안전 관리 조례', ri3_p:'위험 화학물질의 생산, 보관, 운송, 사용에 관한 안전 관리 규정.',
+    ri4_h:'건설 고소 작업 안전 기술 규범 JGJ80', ri4_p:'건설 고소 작업의 안전 방호 조치 및 기술 요구사항을 규정합니다.',
+    ri5_h:'공업 기업 전기 안전 규정', ri5_p:'공업 기업 전기 장비의 설치, 운행, 유지 보수 및 안전 방호 기술 규정.',
+    reg_valid:'현행 유효', reg_law:'법률', reg_all_ind:'전 업종',
+    reg_gb:'국가 표준', reg_build:'건설', reg_admin:'행정 법규',
+    reg_chem:'화학', reg_ind_std:'업계 표준', reg_elec:'전기',
+    reg_view:'전문 보기',
+    cta_h:'지금 귀사의 안전을 지키세요',
+    cta_p:'14일 무료 체험 · 신용카드 불필요 · 언제든지 취소 가능',
+    cta_btn1:'무료 체험 시작', cta_btn2:'데모 예약',
+    footer_desc:'기술 혁신을 통해 기업 안전 생산 관리 수준을 높이고 모든 산업 근로자의 생명 안전과 건강을 지키는 데 전념합니다.',
+    fa_role:'플랫폼 설계 및 개발',
+    fc1_h:'제품 기능', fc1_1:'위험 경보', fc1_2:'대시보드', fc1_3:'안전 교육', fc1_4:'법규 라이브러리',
+    fc2_h:'적용 산업', fc2_1:'건설 시공', fc2_2:'화학 제조', fc2_3:'광산 채굴', fc2_4:'기계 가공',
+    fc3_h:'문의하기', fc3_addr:'📍 베이징 하이뎬구', fc3_about:'회사 소개',
+    footer_copy:'© 2025 安盾云 · 산업 안전 종합 관리 플랫폼. All rights reserved.',
+    chart_months:['1월','2월','3월','4월','5월','6월','7월','8월','9월','10월','11월','12월'],
+    chart_hazard:'위험 신고', chart_accident:'사고 건수',
+    chart_types:['고소 추락','기계 상해','감전 사고','화학물질','화재','기타'],
+  }
+};
+
+// ─── i18n ENGINE ─────────────────────────────────────────────
+let currentLang = 'zh';
+let trendChart, typeChart;
+
+function setLang(lang) {
+  currentLang = lang;
+  const t = i18n[lang];
+
+  // Update lang buttons
+  document.querySelectorAll('.lang-btn').forEach(b => {
+    b.classList.toggle('active', b.textContent.trim() === ({zh:'中文',en:'EN',ko:'한국어'}[lang]));
+  });
+
+  // Update html lang
+  document.documentElement.lang = {zh:'zh-CN',en:'en',ko:'ko'}[lang];
+
+  // Update all [data-i18n] elements
+  document.querySelectorAll('[data-i18n]').forEach(el => {
+    const key = el.getAttribute('data-i18n');
+    if (t[key] !== undefined) el.innerHTML = t[key];
+  });
+
+  // Update placeholders
+  document.querySelectorAll('[data-i18n-placeholder]').forEach(el => {
+    const key = el.getAttribute('data-i18n-placeholder');
+    if (t[key] !== undefined) el.placeholder = t[key];
+  });
+
+  // Rebuild charts with new labels
+  updateCharts(t);
+}
+
+function updateCharts(t) {
+  if (trendChart) {
+    trendChart.data.labels = t.chart_months;
+    trendChart.data.datasets[0].label = t.chart_hazard;
+    trendChart.data.datasets[1].label = t.chart_accident;
+    trendChart.update();
+  }
+  if (typeChart) {
+    typeChart.data.labels = t.chart_types;
+    typeChart.update();
+  }
+}
+
+// ─── CHARTS ──────────────────────────────────────────────────
+window.addEventListener('DOMContentLoaded', () => {
+  const t = i18n.zh;
+
+  trendChart = new Chart(document.getElementById('trendChart').getContext('2d'), {
+    type: 'bar',
+    data: {
+      labels: t.chart_months,
+      datasets: [
+        { label: t.chart_hazard, data:[45,52,38,61,48,55,42,39,50,44,47,32], backgroundColor:'rgba(26,86,219,.15)', borderColor:'rgba(26,86,219,.7)', borderWidth:2, borderRadius:6, yAxisID:'y' },
+        { label: t.chart_accident, data:[8,6,9,5,7,4,6,3,5,4,3,2], type:'line', borderColor:'#ef4444', backgroundColor:'rgba(239,68,68,.08)', borderWidth:2.5, pointBackgroundColor:'#ef4444', pointRadius:4, tension:0.4, fill:true, yAxisID:'y1' }
+      ]
+    },
+    options: { responsive:true, maintainAspectRatio:false, plugins:{ legend:{ position:'top', labels:{ font:{size:12}, boxWidth:14 } } }, scales:{ y:{ beginAtZero:true, grid:{color:'#f1f5f9'}, ticks:{font:{size:11}} }, y1:{ position:'right', beginAtZero:true, grid:{drawOnChartArea:false}, ticks:{font:{size:11}} } } }
+  });
+
+  typeChart = new Chart(document.getElementById('typeChart').getContext('2d'), {
+    type: 'doughnut',
+    data: {
+      labels: t.chart_types,
+      datasets:[{ data:[32,25,18,12,8,5], backgroundColor:['#ef4444','#f59e0b','#3b82f6','#8b5cf6','#f97316','#94a3b8'], borderWidth:0, hoverOffset:8 }]
+    },
+    options: { responsive:true, maintainAspectRatio:false, plugins:{ legend:{ position:'bottom', labels:{ font:{size:11}, boxWidth:12, padding:12 } } }, cutout:'65%' }
+  });
+
+  // Nav active state on scroll
+  const sections = document.querySelectorAll('section[id], #cta');
+  const navLinks = document.querySelectorAll('.nav-links a');
+  window.addEventListener('scroll', () => {
+    let current = '';
+    sections.forEach(s => { if (window.scrollY >= s.offsetTop - 100) current = s.id; });
+    navLinks.forEach(a => { a.classList.toggle('active', a.getAttribute('href') === '#' + current); });
+  });
+});
+</script>
+</body>
+</html>
