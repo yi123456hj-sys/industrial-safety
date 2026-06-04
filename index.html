@@ -289,6 +289,7 @@
   </a>
   <div class="nav-right">
     <div class="nav-links">
+      <a href="#about" data-i18n="nav_about">网站介绍</a>
       <a href="#warning" class="active" data-i18n="nav_warning">风险预警</a>
       <a href="#dashboard" data-i18n="nav_dashboard">数据看板</a>
       <a href="#training" data-i18n="nav_training">安全培训</a>
@@ -307,7 +308,7 @@
 <div class="author-banner">
   <span class="author-label" data-i18n="author_label">平台创建者</span>
   <div class="author-badge">
-    <span class="id">PDF202217135</span>
+    <span class="id">202217135</span>
     <span class="sep">|</span>
     <span class="name">고우함</span>
   </div>
@@ -411,6 +412,48 @@
         <h3 data-i18n="f4_h">法规政策库</h3>
         <p data-i18n="f4_p">实时更新国家及地方安全生产法规、标准、操作规程，智能检索与推送。</p>
         <div class="feature-tags"><span class="tag" data-i18n="f4_t1">法规全库</span><span class="tag" data-i18n="f4_t2">智能检索</span><span class="tag" data-i18n="f4_t3">自动更新</span></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ABOUT -->
+<section id="about" style="background:var(--gray-900);padding:72px 5%;">
+  <div class="section-inner">
+    <div class="section-header">
+      <div class="section-tag" style="background:rgba(255,255,255,.1);color:#93c5fd;" data-i18n="about_tag">网站介绍</div>
+      <h2 style="color:#fff;" data-i18n="about_h2">关于安盾云平台</h2>
+      <p style="color:rgba(255,255,255,.6);" data-i18n="about_p">安盾云是一套面向现代制造业、建筑、化工等高危行业的智能产业安全管理平台</p>
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:32px;align-items:center;">
+      <div>
+        <div style="color:rgba(255,255,255,.85);font-size:15px;line-height:2;" data-i18n="about_body">
+          <p style="margin-bottom:16px;">安盾云平台由 <strong style="color:#60a5fa;">고우함 (202217135)</strong> 设计与开发，致力于通过人工智能与大数据技术，从根本上降低工业事故发生率，守护每一位产业工人的生命安全。</p>
+          <p style="margin-bottom:16px;">平台整合了 <strong style="color:#34d399;">事故风险预警、安全培训、数据可视化、法规政策库</strong> 四大核心模块，实现安全管理的全流程数字化与智能化，帮助企业从被动应对事故转变为主动预防风险。</p>
+          <p>目前已服务全国 12,847 家企业，覆盖建筑、化工、制造、矿山等多个高危行业，累计预防事故超过 3,200 起，保护近 50 万名一线工人的安全。</p>
+        </div>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;">
+        <div style="background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);border-radius:16px;padding:24px;text-align:center;">
+          <div style="font-size:32px;margin-bottom:8px;">🎯</div>
+          <div style="color:#fff;font-weight:800;font-size:18px;margin-bottom:4px;" data-i18n="about_v1_t">核心目标</div>
+          <div style="color:rgba(255,255,255,.5);font-size:13px;" data-i18n="about_v1_p">零事故工作场所</div>
+        </div>
+        <div style="background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);border-radius:16px;padding:24px;text-align:center;">
+          <div style="font-size:32px;margin-bottom:8px;">🤖</div>
+          <div style="color:#fff;font-weight:800;font-size:18px;margin-bottom:4px;" data-i18n="about_v2_t">技术驱动</div>
+          <div style="color:rgba(255,255,255,.5);font-size:13px;" data-i18n="about_v2_p">AI + 大数据 + 物联网</div>
+        </div>
+        <div style="background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);border-radius:16px;padding:24px;text-align:center;">
+          <div style="font-size:32px;margin-bottom:8px;">🌏</div>
+          <div style="color:#fff;font-weight:800;font-size:18px;margin-bottom:4px;" data-i18n="about_v3_t">服务范围</div>
+          <div style="color:rgba(255,255,255,.5);font-size:13px;" data-i18n="about_v3_p">覆盖全国多个行业</div>
+        </div>
+        <div style="background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);border-radius:16px;padding:24px;text-align:center;">
+          <div style="font-size:32px;margin-bottom:8px;">📜</div>
+          <div style="color:#fff;font-weight:800;font-size:18px;margin-bottom:4px;" data-i18n="about_v4_t">法规合规</div>
+          <div style="color:rgba(255,255,255,.5);font-size:13px;" data-i18n="about_v4_p">328项法规实时同步</div>
+        </div>
       </div>
     </div>
   </div>
@@ -572,7 +615,7 @@
         <div class="footer-author">
           <div class="fa-icon">👨‍💻</div>
           <div>
-            <div class="fa-id">PDF202217135</div>
+            <div class="fa-id">202217135</div>
             <div class="fa-name">고우함</div>
             <div class="fa-role" data-i18n="fa_role">平台设计与开发</div>
           </div>
@@ -611,9 +654,16 @@
 // ─── i18n DATA ───────────────────────────────────────────────
 const i18n = {
   zh: {
-    nav_warning:'风险预警', nav_dashboard:'数据看板', nav_training:'安全培训',
+    nav_about:'网站介绍', nav_warning:'风险预警', nav_dashboard:'数据看板', nav_training:'安全培训',
     nav_regulations:'法规库', nav_trial:'免费试用',
     author_label:'平台创建者',
+    about_tag:'网站介绍', about_h2:'关于安盾云平台',
+    about_p:'安盾云是一套面向现代制造业、建筑、化工等高危行业的智能产业安全管理平台',
+    about_body:'<p style="margin-bottom:16px;">安盾云平台由 <strong style="color:#60a5fa;">고우함 (202217135)</strong> 设计与开发，致力于通过人工智能与大数据技术，从根本上降低工业事故发生率，守护每一位产业工人的生命安全。</p><p style="margin-bottom:16px;">平台整合了 <strong style="color:#34d399;">事故风险预警、安全培训、数据可视化、法规政策库</strong> 四大核心模块，实现安全管理的全流程数字化与智能化，帮助企业从被动应对事故转变为主动预防风险。</p><p>目前已服务全国 12,847 家企业，覆盖建筑、化工、制造、矿山等多个高危行业，累计预防事故超过 3,200 起，保护近 50 万名一线工人的安全。</p>',
+    about_v1_t:'核心目标', about_v1_p:'零事故工作场所',
+    about_v2_t:'技术驱动', about_v2_p:'AI + 大数据 + 物联网',
+    about_v3_t:'服务范围', about_v3_p:'覆盖全国多个行业',
+    about_v4_t:'法规合规', about_v4_p:'328项法规实时同步',
     hero_badge:'产业安全综合管理平台 · 2025',
     hero_title:'守护每一位<br><em>产业工人的安全</em>',
     hero_desc:'集事故风险预警、安全培训、数据可视化、法规政策于一体，为企业提供全方位智能化安全管理解决方案。',
@@ -695,9 +745,16 @@ const i18n = {
     chart_types:['高空坠落','机械伤害','触电事故','化学品','火灾','其他'],
   },
   en: {
-    nav_warning:'Risk Alert', nav_dashboard:'Dashboard', nav_training:'Training',
+    nav_about:'About', nav_warning:'Risk Alert', nav_dashboard:'Dashboard', nav_training:'Training',
     nav_regulations:'Regulations', nav_trial:'Free Trial',
     author_label:'Platform Creator',
+    about_tag:'About', about_h2:'About AnDunYun Platform',
+    about_p:'AnDunYun is an intelligent industrial safety management platform for high-risk industries including manufacturing, construction, and chemicals',
+    about_body:'<p style="margin-bottom:16px;">AnDunYun was designed and developed by <strong style="color:#60a5fa;">고우함 (202217135)</strong>, dedicated to fundamentally reducing industrial accident rates through artificial intelligence and big data technology.</p><p style="margin-bottom:16px;">The platform integrates four core modules: <strong style="color:#34d399;">Risk Warning, Safety Training, Data Visualization, and Regulations Library</strong> — enabling full digitalization of safety management, helping enterprises shift from reactive incident response to proactive risk prevention.</p><p>Currently serving 12,847 enterprises nationwide, covering construction, chemicals, manufacturing, mining and more — preventing over 3,200 accidents and protecting nearly 500,000 frontline workers.</p>',
+    about_v1_t:'Mission', about_v1_p:'Zero-accident workplaces',
+    about_v2_t:'Technology', about_v2_p:'AI + Big Data + IoT',
+    about_v3_t:'Coverage', about_v3_p:'Multiple industries nationwide',
+    about_v4_t:'Compliance', about_v4_p:'328 regulations in real-time',
     hero_badge:'Industrial Safety Management Platform · 2025',
     hero_title:'Protecting Every<br><em>Industrial Worker\'s Safety</em>',
     hero_desc:'An all-in-one platform for accident risk alerts, safety training, data visualization, and regulatory policy — delivering intelligent safety management for enterprises.',
@@ -779,9 +836,16 @@ const i18n = {
     chart_types:['Falls from Height','Machinery','Electric Shock','Chemicals','Fire','Others'],
   },
   ko: {
-    nav_warning:'위험 경보', nav_dashboard:'대시보드', nav_training:'안전 교육',
+    nav_about:'사이트 소개', nav_warning:'위험 경보', nav_dashboard:'대시보드', nav_training:'안전 교육',
     nav_regulations:'법규 라이브러리', nav_trial:'무료 체험',
     author_label:'플랫폼 제작자',
+    about_tag:'사이트 소개', about_h2:'안盾云 플랫폼 소개',
+    about_p:'안盾云은 제조업, 건설, 화학 등 고위험 산업을 위한 지능형 산업 안전 관리 플랫폼입니다',
+    about_body:'<p style="margin-bottom:16px;">안盾云 플랫폼은 <strong style="color:#60a5fa;">고우함 (202217135)</strong>이 설계·개발하였으며, 인공지능과 빅데이터 기술을 통해 산업 사고 발생률을 근본적으로 낮추고 모든 산업 근로자의 생명 안전을 지키는 데 전념합니다.</p><p style="margin-bottom:16px;">플랫폼은 <strong style="color:#34d399;">사고 위험 경보, 안전 교육, 데이터 시각화, 법규 라이브러리</strong> 4대 핵심 모듈을 통합하여 안전 관리의 전 과정을 디지털화·지능화하고, 기업이 사후 대응에서 사전 예방으로 전환할 수 있도록 지원합니다.</p><p>현재 전국 12,847개 기업에 서비스 중이며, 건설·화학·제조·광산 등 다양한 고위험 산업을 커버하고, 3,200건 이상의 사고를 예방하여 약 50만 명의 일선 근로자를 보호하고 있습니다.</p>',
+    about_v1_t:'핵심 목표', about_v1_p:'무사고 작업장',
+    about_v2_t:'기술 기반', about_v2_p:'AI + 빅데이터 + IoT',
+    about_v3_t:'서비스 범위', about_v3_p:'전국 다양한 산업 커버',
+    about_v4_t:'법규 준수', about_v4_p:'328개 법규 실시간 동기화',
     hero_badge:'산업 안전 종합 관리 플랫폼 · 2025',
     hero_title:'모든<br><em>산업 근로자의 안전을 지키다</em>',
     hero_desc:'사고 위험 경보, 안전 교육, 데이터 시각화, 법규 정책을 하나로 통합하여 기업에 전방위 지능형 안전 관리 솔루션을 제공합니다.',
